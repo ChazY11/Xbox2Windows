@@ -159,6 +159,8 @@ int main(int argc, char** argv)
         expect(store.delete_container(name) == Status::bad_name, "bad container delete refused");
     }
     expect(!x2w_save::valid_name(std::string(x2w_save::max_name_bytes + 1, 'a')), "name length is capped");
+    // The other side of that limit: a name of exactly the cap has to be accepted.
+    expect(x2w_save::valid_name(std::string(x2w_save::max_name_bytes, 'a')), "a name at the cap is accepted");
     expect(store.write_blob("slot-a", "big", first.data(), x2w_save::max_blob_bytes + 1) == Status::too_large, "size is capped");
     expect(!fs::exists(root / "x") && !fs::exists(root / "abs"), "nothing outside the store root");
 

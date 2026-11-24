@@ -211,6 +211,10 @@ class Stage:
             return 'exec'
         if tok == 'm0':
             return 'm0'
+        if tok == 'src_scc':
+            # Source code 253 reads the SCC bit as the integer value 0 or 1: s_mul_i32 s28, 1.0,
+            # src_scc multiplies the raw bits of the inline float. The scalar code keeps SCC in scc.
+            return '(scc ? 1u : 0u)'
         r = reg_range(tok)
         if r:
             if r[0] == 'v':

@@ -1871,6 +1871,10 @@ if(EXISTS "${INTAKE_PYTHON}")
     set_tests_properties(startup_gfx2hlsl_capture PROPERTIES TIMEOUT 120)
     # Two integer operations whose refusal was never reached: v_cvt_i32_f32 with an output
     # modifier, and v_readfirstlane_b32 without a proven uniform source.
+    # Source code 253 (src_scc) reads the SCC bit as an integer; the census form refused it (#1820).
+    add_test(NAME startup_gfx2hlsl_src_scc COMMAND "${INTAKE_PYTHON}" -B
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/startup_gfx2hlsl_src_scc_check.py")
+    set_tests_properties(startup_gfx2hlsl_src_scc PROPERTIES TIMEOUT 60)
     add_test(NAME startup_gfx2hlsl_op_refusals COMMAND "${INTAKE_PYTHON}" -B
         "${CMAKE_CURRENT_SOURCE_DIR}/tests/startup_gfx2hlsl_op_refusals_check.py")
     set_tests_properties(startup_gfx2hlsl_op_refusals PROPERTIES TIMEOUT 60)

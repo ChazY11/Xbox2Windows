@@ -182,6 +182,7 @@ python3 -m venv out/pe-env
 ./out/pe-env/bin/python -B tests/startup_gfx2hlsl_f32_lg_check.py
 ./out/pe-env/bin/python -B tests/startup_gfx2hlsl_f32_nan_check.py
 ./out/pe-env/bin/python -B tests/run_checks_parallel_check.py
+./out/pe-env/bin/python -B tests/startup_gfx2hlsl_handler_arity_check.py
 ```
 
 `tests/pixel_aot_check.py binary` additionally needs LLVM with gfx1013 support

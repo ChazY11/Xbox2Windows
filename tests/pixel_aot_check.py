@@ -16917,6 +16917,12 @@ def _check_controls_inline(directory):
     # SDWA v_movrel* (#1917): the selections apply to the indexed words; the refusals of v_mov_b32_sdwa hold.
     sdwa_hlsl = translate_int(uncompressed_export(SDWA_MOVREL_BODY))
     assert "dpp_soff" in sdwa_hlsl and "dpp_doff" in sdwa_hlsl and "QuadRead" not in sdwa_hlsl
+    # Each selection must actually be applied: src0_sel:BYTE_3 with sext on the indexed source, and
+    # dst_sel:WORD_x on every indexed destination. A lowering that drops either call still emits dpp_soff
+    # and dpp_doff, so presence of those names is not enough.
+    assert "(((asuint(dpp_src27) >> 24u) & 0xffu)" in sdwa_hlsl, sdwa_hlsl
+    assert "((asuint(alu30) & 0xffff0000u) | ((dpp_val37 & 0xffffu) << 0u))" in sdwa_hlsl, sdwa_hlsl
+    assert "asuint(asint(asuint(alu34) << 8u) >> 24u)" in sdwa_hlsl, sdwa_hlsl
     sdwa_bank = ["v_mov_b32_e32 v24, 0x44332211", "v_mov_b32_e32 v25, 0x88776655"]
     for bad_seq, message in (
         (sdwa_bank + ["s_mov_b32 m0, 1",

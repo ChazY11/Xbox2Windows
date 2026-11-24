@@ -47,6 +47,9 @@ SOP2_AND_B32 = 0x0e
 SOP2_AND_B64 = 0x0f
 SOP2_LSHL_B32 = 0x1e
 SOP2_BFM_B32 = 0x24
+SOP2_NAND_B32 = 0x18
+SOP2_NOR_B32 = 0x1a
+SOP2_XNOR_B32 = 0x1c
 
 SOPK_MOVK_I32 = 0x00
 
@@ -182,6 +185,19 @@ def controls():
 
     st_bfm_const = run_seq(encode_sop2(SOP2_BFM_B32, M0, 5, 128 + 2))
     assert st_bfm_const.lines == ['m0 = 0x0000003cu;'], st_bfm_const.lines
+
+    # s_nand_b32 / s_nor_b32 / s_xnor_b32: the 32-bit complement logic ops, SCC = result != 0 (#1919).
+    # The sources a fixture stage folds to a constant are not the point here: the complement form and the
+    # SCC update are.
+    for opcode, operator in ((SOP2_NAND_B32, '&'), (SOP2_NOR_B32, '|'), (SOP2_XNOR_B32, '^')):
+        st_logic = run_seq(encode_sop2(opcode, 28, 5, 6))
+        assert len(st_logic.lines) == 2, st_logic.lines
+        assert st_logic.lines[0].startswith('s28 = ~(') and ' %s ' % operator in st_logic.lines[0], st_logic.lines
+        assert st_logic.lines[1] == 'scc = s28 != 0;', st_logic.lines
+
+    # The neighbour stays as it was: a plain AND with the same SCC rule, no complement.
+    st_and = run_seq(encode_sop2(0x0e, 28, 5, 6))
+    assert not st_and.lines[0].startswith('s28 = ~(') and st_and.lines[1] == 'scc = s28 != 0;', st_and.lines
 
     st_bfm_dyn = run_seq(encode_sop2(SOP2_BFM_B32, M0, 8, 128 + 2))
     assert any(line.startswith('m0 = ') and 'ud1' in line for line in st_bfm_dyn.lines), st_bfm_dyn.lines

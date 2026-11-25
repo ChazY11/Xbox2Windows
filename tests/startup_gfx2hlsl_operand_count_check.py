@@ -90,7 +90,8 @@ check('control: without the guard the VEC_F table check fails', bool(table_count
 
 # Handlers outside the tables keep their operands in method bodies, so the same rule is asserted here: the
 # destination plus exactly its sources, and a short list refused rather than indexed.
-BODY_HANDLERS = (('v_mov_b32', 1, 2), ('v_cvt_i32_f32', 1, 2), ('v_cndmask_b32', 2, 3), ('s_bfm_b32', 2, 2))
+BODY_HANDLERS = (('v_mov_b32', 1, 2), ('v_cvt_i32_f32', 1, 2), ('v_cndmask_b32', 2, 3), ('s_bfm_b32', 2, 2),
+                     ('v_cvt_pkrtz_f16_f32', 2, 3))
 for op, sources, operands in BODY_HANDLERS:
     got = [outcome(G, op, n) for n in (sources - 1, sources)]
     check('%s: translates with %d operands and refuses %d' % (op, operands, operands - 1),

@@ -2928,6 +2928,11 @@ class Stage:
     def image(self, ops, mods, how):
         if getattr(self, 'kind', None) == 'cs' and 'd16' in mods:
             raise Unsupported('compute d16 image load requires validated SRV formats')
+        # Every image form reads vdata, an address and a descriptor, so a shorter operand list would reach
+        # ops[1] or ops[2] as an index error rather than a refusal. Samplers are checked further down, where
+        # the form decides whether one is required.
+        if len(ops) < 3:
+            raise Unsupported('image instruction with %d operands, expected at least 3' % len(ops))
         dst = reg_range(ops[0])
         dim = [m for m in mods if m.startswith('dim:')][0][4:]
         dmask = int([m for m in mods if m.startswith('dmask:')][0][6:], 0)

@@ -2787,6 +2787,8 @@ class Stage:
 
     def op_s_bfm_b32(self, ops, mods):
         """Fold constant bitfield masks: titles build inline sampler words with them."""
+        if len(ops) != 3:
+            raise Unsupported('s_bfm_b32 with %d operands, expected 3' % len(ops))
         vals = []
         for o in ops[1:3]:
             r = reg_range(o)
@@ -3859,6 +3861,8 @@ class Stage:
     def op_v_cvt_i32_f32(self, ops, mods):
         if mods:
             raise Unsupported('v_cvt_i32_f32 with modifiers')
+        if len(ops) != 2:
+            raise Unsupported('v_cvt_i32_f32 with %d operands, expected 2' % len(ops))
         dst = reg_range(ops[0])[1]
         self.set_v(dst, 'uint(int(F(%s)))' % self.u(ops[1]))
 
@@ -4030,6 +4034,8 @@ class Stage:
         self.set_s(dst[1], 'sp%d_%d' % (n, lane), sym=sym, uniform=uniform)
 
     def op_v_mov_b32(self, ops, mods):
+        if len(ops) != 2:
+            raise Unsupported('v_mov_b32 with %d operands, expected 2' % len(ops))
         self.set_v(reg_range(ops[0])[1], self.u(ops[1]))
 
     def op_v_swap_b32(self, ops, mods):
@@ -4062,6 +4068,8 @@ class Stage:
         # modifier that reaches here is refused rather than dropped from the emitted text.
         if mods:
             raise Unsupported('v_cndmask_b32 with %s' % mods)
+        if len(ops) not in (3, 4):
+            raise Unsupported('v_cndmask_b32 with %d operands, expected 3 or 4' % len(ops))
         mask = self.u(ops[3]) if len(ops) > 3 else 'vcc'
         self.set_v(reg_range(ops[0])[1],
                    '(%s & 1) ? %s : %s' % (mask, self.u_src(ops[2]), self.u_src(ops[1])))

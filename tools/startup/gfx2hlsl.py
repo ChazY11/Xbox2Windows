@@ -4055,15 +4055,21 @@ class Stage:
                    '(%s & 1) ? %s : %s' % (mask, self.u_src(ops[2]), self.u_src(ops[1])))
 
     def op_v_interp_p1_f32(self, ops, mods):
+        if len(ops) != 3:
+            raise Unsupported('v_interp_p1_f32 with %d operands, expected 3' % len(ops))
         if hasattr(self, 'uniform_v'):
             self.uniform_v.discard(reg_range(ops[0])[1])
         self.note_attr(ops[2], 'linear')
 
     def op_v_interp_p2_f32(self, ops, mods):
+        if len(ops) != 3:
+            raise Unsupported('v_interp_p2_f32 with %d operands, expected 3' % len(ops))
         attr, comp = self.note_attr(ops[2], 'linear')
         self.set_v(reg_range(ops[0])[1], 'U(i.param%d.%s)' % (attr, comp))
 
     def op_v_interp_mov_f32(self, ops, mods):
+        if len(ops) != 3:
+            raise Unsupported('v_interp_mov_f32 with %d operands, expected 3' % len(ops))
         # Only p0 is the flat copy. p10 (P1 - P0) and p20 (P2 - P0) need the per-vertex attribute
         # values, which the FXC path does not have, so they are refused rather than read as p0.
         if ops[1] != 'p0':
@@ -4547,6 +4553,8 @@ class Stage:
             raise Unsupported(base)
         if sdwa:
             self.check_compare_sdwa_destination(base, writes_exec, ops)
+        if len(ops) < 2:
+            raise Unsupported('%s with %d operands, expected at least 2' % (base, len(ops)))
         if len(ops) == 3:
             dst, a, b = ops
         else:

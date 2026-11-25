@@ -3374,8 +3374,12 @@ class Stage:
         if len(ops) < 3:
             raise Unsupported('image instruction with %d operands, expected at least 3' % len(ops))
         dst = reg_range(ops[0])
-        dim = [m for m in mods if m.startswith('dim:')][0][4:]
-        dmask = int([m for m in mods if m.startswith('dmask:')][0][6:], 0)
+        dims = [m for m in mods if m.startswith('dim:')]
+        dmasks = [m for m in mods if m.startswith('dmask:')]
+        if not dims or not dmasks:
+            raise Unsupported('image instruction without %s' % ('dim:' if not dims else 'dmask:'))
+        dim = dims[0][4:]
+        dmask = int(dmasks[0][6:], 0)
         kinds = {'SQ_RSRC_IMG_1D': 'tex1d', 'SQ_RSRC_IMG_2D': 'tex2d', 'SQ_RSRC_IMG_3D': 'tex3d', 'SQ_RSRC_IMG_2D_ARRAY': 'tex2da'}
         if dim not in kinds:
             raise Unsupported('image dimension %s' % dim)
